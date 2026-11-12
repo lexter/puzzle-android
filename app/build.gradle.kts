@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.ktlint)
 }
 
 android {
@@ -14,14 +15,31 @@ android {
         applicationId = "com.lexterlabra.puzzle"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
+        // CI passes -PversionCode=<run number> so every distributed build installs over the last.
+        versionCode = providers.gradleProperty("versionCode").map(String::toInt).getOrElse(1)
         versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    // Release signing comes from the environment (CI secrets); without it, release builds are unsigned.
+    val releaseKeystore = providers.environmentVariable("ANDROID_KEYSTORE_PATH")
+    signingConfigs {
+        if (releaseKeystore.isPresent) {
+            create("release") {
+                storeFile = file(releaseKeystore.get())
+                storePassword = providers.environmentVariable("ANDROID_KEYSTORE_PASSWORD").get()
+                keyAlias = providers.environmentVariable("ANDROID_KEY_ALIAS").get()
+                keyPassword = providers.environmentVariable("ANDROID_KEY_PASSWORD").get()
+            }
+        }
     }
     packaging {
         resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
     }
     buildTypes {
-        getByName("release") { isMinifyEnabled = false }
+        getByName("release") {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -30,6 +48,16 @@ android {
     buildFeatures { compose = true }
     testOptions {
         unitTests.isIncludeAndroidResources = true
+    }
+    lint {
+        // Security checks fail the build instead of warning (CI runs lintDebug).
+        error += setOf(
+            "AllowAllHostnameVerifier", "BadHostnameVerifier", "TrustAllX509TrustManager", "SSLCertificateSocketFactoryGetInsecure",
+            "SSLCertificateSocketFactoryCreateSocket", "InsecureBaseConfiguration", "AcceptsUserCertificates", "HardcodedDebugMode",
+            "SetJavaScriptEnabled", "AddJavascriptInterface", "ExportedContentProvider", "ExportedReceiver", "ExportedService",
+            "ExportedPreferenceActivity", "GrantAllUris", "UnsafeIntentLaunch", "UnsafeProtectedBroadcastReceiver",
+            "WorldReadableFiles", "WorldWriteableFiles", "SecureRandom", "GetInstance", "PackageManagerGetSignatures", "LogConditional",
+        )
     }
 }
 
@@ -64,4 +92,8 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
     testImplementation(libs.compose.ui.test.junit4)
+
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.compose.ui.test.junit4)
 }

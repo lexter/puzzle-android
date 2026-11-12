@@ -1,19 +1,19 @@
 package com.lexterlabra.puzzle.p2p
 
+import android.content.Context
 import com.lexterlabra.puzzle.game.monotonicMillis
 import com.lexterlabra.puzzle.image.PuzzleImage
-import android.content.Context
 import com.lexterlabra.puzzle.platform.PLATFORM_NAME
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import java.net.ServerSocket
 

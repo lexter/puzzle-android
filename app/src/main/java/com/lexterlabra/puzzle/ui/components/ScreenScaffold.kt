@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.unit.dp
-import com.lexterlabra.puzzle.glass.GlassBackdrop
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.unit.dp
 import com.lexterlabra.puzzle.R
+import com.lexterlabra.puzzle.glass.GlassBackdrop
 
 /** The bundled default picture (square, 1024 px). */
 @Composable

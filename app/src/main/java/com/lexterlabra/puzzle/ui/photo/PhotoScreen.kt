@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -56,7 +57,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lexterlabra.puzzle.game.PuzzleState
 import com.lexterlabra.puzzle.glass.GlassSurface
-import androidx.compose.ui.platform.LocalContext
 import com.lexterlabra.puzzle.platform.openAppSettings
 import com.lexterlabra.puzzle.platform.rememberImagePicker
 import com.lexterlabra.puzzle.ui.components.GlassButton

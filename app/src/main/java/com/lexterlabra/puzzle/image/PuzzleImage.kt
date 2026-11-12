@@ -14,7 +14,6 @@ import kotlin.math.roundToInt
 class ImageTooSmall : Exception("This photo is too small to make a puzzle.")
 class ImageDecodeFailed : Exception("This photo couldn't be opened.")
 
-
 object PuzzleImage {
     const val MAX_SIDE = 1024
     const val MIN_SIDE = 64

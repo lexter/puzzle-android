@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Lint gate: ktlint when Kotlin files are staged, plus the privacy guard.
+# Install with scripts/install-hooks.sh. Skip once with `git commit --no-verify`.
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR -- '*.kt' '*.kts' '.editorconfig')
+if [[ -n $staged ]]; then
+  # ktlint checks the working tree. Refuse (rather than stash and risk the user's edits) when a
+  # staged file also has unstaged changes, so what's linted is exactly what's committed.
+  partial=$(comm -12 <(echo "$staged" | sort) <(git diff --name-only | sort))
+  if [[ -n $partial ]]; then
+    echo "pre-commit: these files have both staged and unstaged changes:" >&2
+    echo "$partial" | sed 's/^/  /' >&2
+    echo "pre-commit: stage them fully (git add) or stash the rest, then commit again." >&2
+    exit 1
+  fi
+  if ! ./gradlew --quiet :app:ktlintCheck; then
+    echo "pre-commit: ktlint failed. Run ./gradlew :app:ktlintFormat to fix most violations." >&2
+    exit 1
+  fi
+fi
+
+scripts/privacy-guard.sh > /dev/null
