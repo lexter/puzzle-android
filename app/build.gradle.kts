@@ -96,4 +96,6 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.compose.ui.test.junit4)
+    // Compose ui-test pulls Espresso 3.5, which calls InputManager.getInstance() and crashes on API 37.
+    androidTestImplementation(libs.androidx.test.espresso.core)
 }
