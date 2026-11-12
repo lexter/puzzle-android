@@ -18,7 +18,7 @@ import com.lexterlabra.puzzle.ui.photo.PhotoScreen
 import com.lexterlabra.puzzle.ui.photo.PhotoViewModel
 import androidx.activity.compose.BackHandler
 import androidx.compose.ui.platform.LocalContext
-import com.lexterlabra.puzzle.platform.DeviceName
+import com.lexterlabra.puzzle.platform.DefaultPlayerName
 import com.lexterlabra.puzzle.p2p.MatchHub
 import com.lexterlabra.puzzle.ui.game.GameScreen
 import com.lexterlabra.puzzle.ui.game.RaceGameScreen
@@ -77,7 +77,7 @@ private fun ScreenContent(screen: Screen, navigator: Navigator, container: AppCo
             settings = container.settings,
         )
         is Screen.Lobby -> LobbyScreen(
-            viewModel = viewModel { LobbyViewModel(screen.mode, container.settings, container.matchHub, deviceName = { DeviceName.get(context) }, initialPhoto = container.photos.chosen.value) },
+            viewModel = viewModel { LobbyViewModel(screen.mode, container.settings, container.matchHub, deviceName = DefaultPlayerName::get, initialPhoto = container.photos.chosen.value) },
             onBack = { navigator.pop() },
             onRaceStarting = { navigator.replace(Screen.Race) },
         )

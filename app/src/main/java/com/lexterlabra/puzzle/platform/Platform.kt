@@ -51,10 +51,11 @@ fun rememberImagePicker(onResult: (PickResult) -> Unit): ImagePicker {
     val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { saved ->
         val uri = pendingPhoto.value
         deliver(if (saved && uri != null) read(uri) else PickResult.Cancelled)
+        // Don't keep the photo around once its bytes are in memory.
+        captureFile(context).delete()
     }
     val launchCamera = {
-        val dir = File(context.cacheDir, "photos").apply { mkdirs() }
-        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", File(dir, "capture.jpg"))
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", captureFile(context))
         pendingPhoto.value = uri
         camera.launch(uri)
     }
@@ -77,10 +78,17 @@ fun rememberImagePicker(onResult: (PickResult) -> Unit): ImagePicker {
     }
 }
 
-object DeviceName {
-    fun get(context: Context): String =
-        Settings.Global.getString(context.contentResolver, Settings.Global.DEVICE_NAME)?.takeIf { it.isNotBlank() } ?: Build.MODEL
+/**
+ * Player name used until the player sets one. It's advertised over mDNS, so it must not identify
+ * the owner: the device model (e.g. "Pixel 8"), never `Settings.Global.DEVICE_NAME`, which is the
+ * user-assigned name (e.g. "Jane's Pixel").
+ */
+object DefaultPlayerName {
+    fun get(): String = Build.MODEL
 }
+
+/** Where the camera writes a new photo; deleted as soon as it has been read. */
+private fun captureFile(context: Context): File = File(context.cacheDir, "photos").apply { mkdirs() }.resolve("capture.jpg")
 
 /** Sent in the P2P handshake. */
 const val PLATFORM_NAME = "android"
